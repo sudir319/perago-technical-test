@@ -130,20 +130,14 @@ public class DiffEngineImpl implements DiffEngine {
 				if (Modifier.isStatic(child.getModifiers())) {
 					continue;
 				}
-				boolean isCollection = false;
-				// collections are proving somewhat difficult probably due to
-				// referencing(pointers)
-				if (original != null || modified != null) {
-					child.setAccessible(true);
-					Object instance = (original != null) ? child.get(original) : child.get(modified);
-					isCollection = instance instanceof Collection;
-				}
 				
 				if ((getPropertyValue(original, child.getName()) == null)
 						&& getPropertyValue(modified, child.getName()) == null) {
 					continue;
 				}
-				//Friend
+				/**
+				 * This block is related to Friend object changes
+				 */
 				if (child.getType().equals(original.getClass())) {
 					diff.addLog(new Diff.ChangeLog(Status.Update, child.getName(), child.getType().getSimpleName(),
 							depth, false));
@@ -199,6 +193,13 @@ public class DiffEngineImpl implements DiffEngine {
 				if (getPropertyValue(original, child.getName()) != null
 						&& getPropertyValue(modified, child.getName()) != null) {
 
+					boolean isCollection = false;
+					if (original != null || modified != null) {
+						child.setAccessible(true);
+						Object instance = (original != null) ? child.get(original) : child.get(modified);
+						isCollection = instance instanceof Collection;
+					}
+					
 					if (!isCollection && (getPropertyValue(original, child.getName())
 							.equals(getPropertyValue(modified, child.getName())))) {
 						continue;
@@ -214,6 +215,9 @@ public class DiffEngineImpl implements DiffEngine {
 							}
 						}
 						
+						/**
+						 * This block is related to Pet object changes
+						 */
 						if(!isStandardDataType(child.getType()))
 						{
 							diff.addLog(new Diff.ChangeLog(Status.Update, child.getName(), child.getType().getSimpleName(),
@@ -242,9 +246,7 @@ public class DiffEngineImpl implements DiffEngine {
 					diff.addLog(new Diff.ChangeLog(Status.Delete, child.getName(), child.getType().getTypeName(), depth,
 							false));
 				}
-
 			}
-
 		}
 	}
 	
@@ -263,7 +265,7 @@ public class DiffEngineImpl implements DiffEngine {
 		return returnObject;
 	}
 
-	private static boolean setField(Object targetObject, String fieldName, Object fieldValue) {
+	private static boolean setFieldValue(Object targetObject, String fieldName, Object fieldValue) {
 		Field field;
 		try {
 			field = targetObject.getClass().getDeclaredField(fieldName);
@@ -307,15 +309,15 @@ public class DiffEngineImpl implements DiffEngine {
 						copy = null;
 						break;
 					} else {
-						setField(copy, changeLog.getFieldName(), changeLog.getValue());
+						setFieldValue(copy, changeLog.getFieldName(), changeLog.getValue());
 						break;
 					}
 				case Create:
 					if(copy == null)
 						copy = referenceCopy;
-					setField(copy, changeLog.getFieldName(), changeLog.getValue());
+					setFieldValue(copy, changeLog.getFieldName(), changeLog.getValue());
 				case Update:
-					setField(copy, changeLog.getFieldName(), changeLog.getValue());
+					setFieldValue(copy, changeLog.getFieldName(), changeLog.getValue());
 					break;
 				default:
 					break;
@@ -326,11 +328,11 @@ public class DiffEngineImpl implements DiffEngine {
 				for (Field field : fields) {
 					if (field.getType().getName().equals(copy.getClass().getName())) {
 						field.setAccessible(true);
-						T object = (T) field.get(copy);
-						if (object == null) {
+						T fieldObject = (T) field.get(copy);
+						if (fieldObject == null) {
 							Class c = copy.getClass().getClassLoader().loadClass(copy.getClass().getName());
-							object = (T) c.newInstance();
-							setField(copy, field.getName(), object);
+							fieldObject = (T) c.newInstance();
+							setFieldValue(copy, field.getName(), fieldObject);
 						}
 						applyDifferencesOnObject(diff, copy, depth + 1);
 					}

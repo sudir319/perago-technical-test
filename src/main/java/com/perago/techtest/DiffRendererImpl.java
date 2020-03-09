@@ -32,7 +32,7 @@ public class DiffRendererImpl implements DiffRenderer {
 			
 			builder.append(getDepthString(changeLog.getDepth()));
 			
-			indent(builder, changeLog.getDepth());
+			appendSpaces(builder, changeLog.getDepth());
 			
 			if (originalClass == null) {
 				builder.append(changeLog.getStatus()).append(":").append(changeLog.getFieldName());
@@ -132,6 +132,11 @@ public class DiffRendererImpl implements DiffRenderer {
 		return builder;
 	}
 
+	/**
+	 * This method will generate the prefix number for each Line based on the Current and Previous Depth information
+	 * @param depth
+	 * @return String that has the information of depth/level number with hierarchy information
+	 */
 	private static String getDepthString(int depth) {
 		try
 		{
@@ -186,10 +191,9 @@ public class DiffRendererImpl implements DiffRenderer {
 		return depthString;
 	}
 
-	private static void indent(StringBuilder builder, int depth) {
+	private static void appendSpaces(StringBuilder builder, int depth) {
 		for (int j = 0; j < depth; j++) {
 			builder.append(" ");
 		}
 	}
-
 }
