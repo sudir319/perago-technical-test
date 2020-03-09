@@ -59,7 +59,7 @@ public class DiffRendererImpl implements DiffRenderer {
 								}
 								else
 								{
-									builder.append("\"").append(changeLog.getValue()).append("\"");
+									builder.append("\"").append(changeLog.getOldValue()).append("\"");
 								}
 							}
 							else

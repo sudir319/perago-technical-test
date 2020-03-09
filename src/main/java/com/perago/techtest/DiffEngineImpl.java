@@ -19,23 +19,29 @@ public class DiffEngineImpl implements DiffEngine {
 			if (diff == null) {
 				throw new DiffException("Diff cannot be null");
 			}
-			if (original == null) {
-				return null;
+			
+			if (original == null)
+			{
+				if (diff.getHolder() != null)
+				{
+					original = (T) diff.getHolder();
+				}
 			}
-			if (diff.getHolder() == null) {
-				return null;
+			
+			if(original == null) {
+				return original;
 			}
 
 			t = (T) BeanUtils.cloneBean(original);
-			applyDifferencesOnObject(diff, t, 0);
+			
+			if(diff.getChangeLogs().get(0).getStatus() == Status.Delete)
+			{
+				return null;
+			}
+			
+			applyDifferencesOnObject(diff, t, 1);
 
-		} catch (IllegalAccessException | ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -56,7 +62,7 @@ public class DiffEngineImpl implements DiffEngine {
 		try {
 			if (original != null) {
 				t = (T) BeanUtils.cloneBean(original);
-			} 
+			}
 			diff.setHolder(t);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -76,14 +82,9 @@ public class DiffEngineImpl implements DiffEngine {
 
 		Field[] children;
 		
-		Class originalClass = null;
-		Class modifiedClass = null;
-		
 		if (original != null) {
-			originalClass = original.getClass();
 			children = original.getClass().getDeclaredFields();
 		} else {
-			modifiedClass = modified.getClass();
 			children = modified.getClass().getDeclaredFields();
 		}
 		
@@ -99,9 +100,9 @@ public class DiffEngineImpl implements DiffEngine {
 							depth, false));
 				} else {
 					eachChild.setAccessible(true);
-					Object modifiedInstance = eachChild.get(modified);
+					Object modifiedValue = eachChild.get(modified);
 					diff.addLog(new Diff.ChangeLog(Status.Create, eachChild.getName(), eachChild.getType().getSimpleName(),
-							null, modifiedInstance, depth, false));
+							null, modifiedValue, depth, false));
 				}
 				if (eachChild.getType().equals(modified.getClass())) {
 					eachChild.setAccessible(true);
@@ -169,11 +170,12 @@ public class DiffEngineImpl implements DiffEngine {
 						continue;
 					} else {
 						child.setAccessible(true);
-						Object modifiedInstance = child.get(modified);
-						Object originalInstance = child.get(original);
+						Object modifiedValue = child.get(modified);
+						Object originalValue = child.get(original);
+						
 						if (isCollection) {
-							if (CollectionUtils.isEqualCollection((Collection) originalInstance,
-									(Collection) modifiedInstance)) {
+							if (CollectionUtils.isEqualCollection((Collection) originalValue,
+									(Collection) modifiedValue)) {
 								continue;
 							}
 						}
@@ -197,7 +199,7 @@ public class DiffEngineImpl implements DiffEngine {
 						else
 						{
 							diff.addLog(new Diff.ChangeLog(Status.Update, child.getName(), child.getType().getSimpleName(),
-									originalInstance, modifiedInstance, depth, false));
+									originalValue, modifiedValue, depth, false));
 						}
 					}
 				}
@@ -296,7 +298,7 @@ public class DiffEngineImpl implements DiffEngine {
 							object = (T) c.newInstance();
 							setField(copy, field.getName(), object);
 						}
-						applyDifferencesOnObject(diff, object, depth + 1);
+						applyDifferencesOnObject(diff, copy, depth + 1);
 					}
 				}
 			}
