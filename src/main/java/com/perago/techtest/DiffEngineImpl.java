@@ -57,7 +57,7 @@ public class DiffEngineImpl implements DiffEngine {
 								+ ", modified object is of type : " + original.getClass().getName());
 			}
 		}
-		Diff<T> diff = new Diff<>();
+		Diff<T> diff = new Diff<T>();
 		T t = null;
 		try {
 			if (original != null) {
@@ -70,7 +70,7 @@ public class DiffEngineImpl implements DiffEngine {
 		
 		try {
 			findDifferences(diff, original, modified, 1, false);
-		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 

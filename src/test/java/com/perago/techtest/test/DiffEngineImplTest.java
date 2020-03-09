@@ -228,30 +228,6 @@ public class DiffEngineImplTest {
     }
     
     @Test
-    public void diffEngineCalculatesDiffShouldEqualModifedWhenOriginalIsNull() throws Exception {
-
-        Person person = new Person();
-        person.setFirstName("Fred");
-        person.setSurname("Smith");
-        Person friend = new Person();
-        friend.setFirstName("Tom");
-        friend.setSurname("Brown");
-        person.setFriend(friend);
-        Set<String> nickNames = new HashSet<>();
-        nickNames.add("schooter");
-        nickNames.add("biff");
-        person.setNickNames(nickNames);
-
-        Diff<Person> diff = diffEngine.calculate(null, person);
-        System.out.println("\ndiffEngineCalculatesDiffShouldEqualModifedWhenOriginalIsNull");
-        System.out.println("************************************************************");
-        System.out.println(renderer.render(diff));
-        assertNotNull(diff);
-        
-        assertEquals(diff.getHolder(), null);
-    }
-
-    @Test
     public void diffEngineApplyShouldReturnModifiedWhenOriginalIsNullAndModifiedNonNull() throws Exception {
         Person modified = new Person();
         modified.setFirstName("Fred");
@@ -318,7 +294,7 @@ public class DiffEngineImplTest {
         person1.setFirstName("Fred");
         person1.setSurname("Smith");
         
-        Set<String> nickNames = new HashSet<>();
+        Set<String> nickNames = new HashSet<String>();
         nickNames.add("scooter");
         nickNames.add("biff");
         person1.setNickNames(nickNames);
@@ -327,7 +303,7 @@ public class DiffEngineImplTest {
         person1.setFirstName("Fred");
         person1.setSurname("Jones");
 
-        Set<String> names = new HashSet<>();
+        Set<String> names = new HashSet<String>();
         names.add("biff");
         names.add("polly");
         person2.setNickNames(names);
