@@ -19,7 +19,7 @@ public class DiffRendererImpl implements DiffRenderer {
 	public String render(Diff<?> diff) throws DiffException {
 
 		Class originalClass;
-		originalClass = (Objects.nonNull(diff.getHolder())) ? diff.getHolder().getClass() : null;
+		originalClass = (diff.getHolder() ==  null) ? null : diff.getHolder().getClass();
 		List<Diff.ChangeLog> changeLogs = diff.getChangeLogs();
 		StringBuilder builder = new StringBuilder();
 		
@@ -34,8 +34,9 @@ public class DiffRendererImpl implements DiffRenderer {
 			builder.append(getDepthString(changeLog.getDepth()));
 			indent(builder, changeLog.getDepth());
 			
-			if (Objects.isNull(originalClass)) {
+			if (originalClass == null) {
 				builder.append(changeLog.getStatus()).append(":").append(changeLog.getFieldName());
+				builder.append(lineSeparator);
 			} else if (changeLog.getFieldName().equals(originalClass.getSimpleName()) && changeLog.isParent()) {
 				builder.append(changeLog.getStatus()).append(":").append(originalClass.getSimpleName());
 				builder.append(lineSeparator);

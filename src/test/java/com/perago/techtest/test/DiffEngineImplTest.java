@@ -27,15 +27,14 @@ public class DiffEngineImplTest {
         modifiedObject.setSurname("Smith");
         
         Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
-        System.out.println("\n\n******************************");
-        System.out.println("originalNullAndModifiedNotNull");
+        System.out.println("\noriginalNullAndModifiedNotNull");
+        System.out.println("******************************");
         System.out.println(renderer.render(diff));
         
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
     }
     
-    @Test
     public void originalNotNullAndModifiedNull() throws Exception
     {
         Person originalObject = new Person();;
@@ -45,15 +44,14 @@ public class DiffEngineImplTest {
         Person modifiedObject = null;
         
         Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
-        System.out.println("\n\n******************************");
-        System.out.println("originalNotNullAndModifiedNull");
+        System.out.println("\noriginalNotNullAndModifiedNull");
+        System.out.println("******************************");
         
         System.out.println(renderer.render(diff));
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
     }
 
-    @Test
     public void modifiedSurname() throws Exception
     {
         Person originalObject = new Person();;
@@ -65,14 +63,13 @@ public class DiffEngineImplTest {
         modifiedObject.setSurname("Jones");
         
         Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
-        System.out.println("\n\n***************");
-        System.out.println("modifiedSurname");
+        System.out.println("\nmodifiedSurname");
+        System.out.println("***************");
         System.out.println(renderer.render(diff));
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
     }
     
-    @Test
     public void addFriend() throws Exception
     {
         Person originalObject = new Person();;
@@ -90,14 +87,13 @@ public class DiffEngineImplTest {
         modifiedObject.setFriend(friend);
         
         Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("\naddFriend");
         System.out.println("*********");
-        System.out.println("addFriend");
         System.out.println(renderer.render(diff));
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
     }
     
-    @Test
     public void updatePersonFriendAndPet() throws Exception
     {
         Person originalObject = new Person();;
@@ -130,14 +126,13 @@ public class DiffEngineImplTest {
         
         
         Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
-        System.out.println("\n\n************************");
-        System.out.println("updatePersonFriendAndPet");
+        System.out.println("\nupdatePersonFriendAndPet");
+        System.out.println("************************");
         System.out.println(renderer.render(diff));
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
     }
     
-    @Test
     public void updatePersonFriend() throws Exception
     {
         Person originalObject = new Person();;
@@ -159,14 +154,13 @@ public class DiffEngineImplTest {
         modifiedObject.setFriend(friend);
 
         Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
-        System.out.println("\n\n************************");
-        System.out.println("updatePersonFriendAndPet");
+        System.out.println("\nupdatePersonFriendAndPet");
+        System.out.println("************************");
         System.out.println(renderer.render(diff));
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
     }
     
-    @Test
     public void deleteFriend() throws Exception
     {
     	Person originalObject = new Person();;
@@ -185,13 +179,13 @@ public class DiffEngineImplTest {
         modifiedObject.setFriend(null);
 
         Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
-        System.out.println("deleteFriend");
+        System.out.println("\ndeleteFriend");
+        System.out.println("************");
         System.out.println(renderer.render(diff));
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
     }
     
-    @Test
     public void updatePersonNickNames() throws Exception
     {
     	Person originalObject = new Person();;
@@ -216,8 +210,8 @@ public class DiffEngineImplTest {
 
         
         Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
-        System.out.println("\n\n*********************");
-        System.out.println("updatePersonNickNames");
+        System.out.println("\nupdatePersonNickNames");
+        System.out.println("*********************");
         System.out.println(renderer.render(diff));
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
