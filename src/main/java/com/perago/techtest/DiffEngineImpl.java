@@ -56,18 +56,9 @@ public class DiffEngineImpl implements DiffEngine {
 		try {
 			if (original != null) {
 				t = (T) BeanUtils.cloneBean(original);
-			} else if (modified != null) {
-				t = (T) BeanUtils.cloneBean(modified);
-			}
+			} 
 			diff.setHolder(t);
-
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
@@ -123,7 +114,6 @@ public class DiffEngineImpl implements DiffEngine {
 
 		} else if (modified == null) {
 			diff.addLog(new Diff.ChangeLog(Status.Delete, original.getClass().getName(), null, depth, true));
-			diff.setHolder(null);
 		} else {
 			if(!ignoreUpdate)
 			{
@@ -158,7 +148,7 @@ public class DiffEngineImpl implements DiffEngine {
 
 					if (fieldInModified == null && fieldInOriginal != null) {
 						diff.addLog(new Diff.ChangeLog(Status.Delete, child.getName(), child.getType().getSimpleName(),
-								depth, false));
+								depth + 1, false));
 						continue;
 					}
 					findDifferences(diff, fieldInOriginal, fieldInModified, depth + 1, true);

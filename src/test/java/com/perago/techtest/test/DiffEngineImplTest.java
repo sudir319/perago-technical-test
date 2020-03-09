@@ -1,156 +1,225 @@
 package com.perago.techtest.test;
 
-import com.perago.techtest.*;
-import com.sun.istack.internal.logging.Logger;
-import org.apache.commons.beanutils.BeanUtils;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import com.perago.techtest.Diff;
+import com.perago.techtest.DiffEngineImpl;
+import com.perago.techtest.DiffRendererImpl;
 
 public class DiffEngineImplTest {
 
-    Logger logger = Logger.getLogger(DiffEngineImplTest.class);
+    DiffEngineImpl diffEngine = new DiffEngineImpl();
+    DiffRendererImpl renderer = new DiffRendererImpl();
 
     @Test
-    public void diffEngineCalculatesDiffShouldEqualModifedWhenOriginalIsNull() throws Exception {
-        DiffEngine diffEngine = new DiffEngineImpl();
-        DiffRenderer renderer = new DiffRendererImpl();
-
-        Person person = new Person();
-        person.setFirstName("Fred");
-        person.setSurname("Smith");
-        Person friend = new Person();
-        friend.setFirstName("Tshepo");
-        person.setFriend(friend);
-        Set<String> nickNames = new HashSet<>();
-        nickNames.add("shane");
-        nickNames.add("shawn");
-        person.setNickNames(nickNames);
-
-        Diff<Person> diff = diffEngine.calculate(null, person);
-        logger.log(Level.INFO,"diffEngineCalculatesDiffShouldEqualModifedWhenOriginalIsNull");
-        logger.log(Level.INFO,renderer.render(diff));
+    public void originalNullAndModifiedNotNull() throws Exception
+    {
+        Person originalObject = null;
+        
+        Person modifiedObject = new Person();
+        modifiedObject.setFirstName("Fred");
+        modifiedObject.setSurname("Smith");
+        
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("\n\n******************************");
+        System.out.println("originalNullAndModifiedNotNull");
+        System.out.println(renderer.render(diff));
+        
         assertNotNull(diff);
-        assertEquals(diff.getHolder(), person);
-
+        assertEquals(diff.getHolder(), originalObject);
+    }
+    
+    @Test
+    public void originalNotNullAndModifiedNull() throws Exception
+    {
+        Person originalObject = new Person();;
+        originalObject.setFirstName("Fred");
+        originalObject.setSurname("Smith");
+        
+        Person modifiedObject = null;
+        
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("\n\n******************************");
+        System.out.println("originalNotNullAndModifiedNull");
+        
+        System.out.println(renderer.render(diff));
+        assertNotNull(diff);
+        assertEquals(diff.getHolder(), originalObject);
     }
 
     @Test
-    public void diffEngineApplyShouldReturnModifiedWhenOriginalIsNullAndModifiedNonNull() throws Exception {
-        DiffEngine diffEngine = new DiffEngineImpl();
-        DiffRenderer diffRenderer = new DiffRendererImpl();
-        Person modified = new Person();
-        modified.setFirstName("Fred");
-        modified.setSurname("Smith");
-
-        Diff<Person> diff = diffEngine.calculate(null, modified);
-        logger.log(Level.INFO, diffRenderer.render(diff));
-        Person clone = (Person)BeanUtils.cloneBean(modified);
-        clone.setSurname("Smithson");
-
-        Person applied = diffEngine.apply(clone, diff);
-        assertNotNull(applied);
-        assertEquals(applied.getSurname(),"Smith");
-        assertEquals(applied.getSurname(),modified.getSurname());
-
+    public void modifiedSurname() throws Exception
+    {
+        Person originalObject = new Person();;
+        originalObject.setFirstName("Fred");
+        originalObject.setSurname("Smith");
+        
+        Person modifiedObject = new Person();;
+        modifiedObject.setFirstName("Fred");
+        modifiedObject.setSurname("Jones");
+        
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("\n\n***************");
+        System.out.println("modifiedSurname");
+        System.out.println(renderer.render(diff));
+        assertNotNull(diff);
+        assertEquals(diff.getHolder(), originalObject);
     }
-
+    
     @Test
-    public void diffEngineApplyShouldReturnNullWhenModifiedIsNull() throws Exception {
-        DiffEngine diffEngine = new DiffEngineImpl();
-        DiffRenderer renderer = new DiffRendererImpl();
-        Person original = new Person();
-        original.setFirstName("Fred");
-        original.setSurname("Smith");
-
-        Diff<Person> diff = diffEngine.calculate(original, null);
-        logger.log(Level.INFO, renderer.render(diff));
-        Person applied = diffEngine.apply(original, diff);
-        assertNotNull(original);
-        assertNull(applied);
-
-    }
-
-
-    @Test
-    public void diffEngineApplyShouldWorkWhenModifiedAndOriginalAreNull() throws Exception {
-        DiffEngine diffEngine = new DiffEngineImpl();
-        DiffRenderer renderer = new DiffRendererImpl();
-        Person original = new Person();
-        original.setFirstName("Fred");
-        original.setSurname("Smith");
-
+    public void addFriend() throws Exception
+    {
+        Person originalObject = new Person();;
+        originalObject.setFirstName("Fred");
+        originalObject.setSurname("Smith");
+        
+        Person modifiedObject = new Person();;
+        modifiedObject.setFirstName("Fred");
+        modifiedObject.setSurname("Smith");
+        
         Person friend = new Person();
-        friend.setFirstName("Tshepo");
-
-        Person modified = (Person) BeanUtils.cloneBean(original);
-        modified.setSurname("Johnson");
-        modified.setFriend(friend);
-
-        Diff<Person> diff = diffEngine.calculate(original, modified);
-        logger.log(Level.INFO, renderer.render(diff));
-
-        Person applied = diffEngine.apply(modified, diff);
-        assertEquals("Smith", original.getSurname());
-        assertEquals("Johnson", applied.getSurname());
-        assertEquals(applied.getFriend().getFirstName(), "Tshepo");
-
+        friend.setFirstName("Tom");
+        friend.setSurname("Brown");
+        
+        modifiedObject.setFriend(friend);
+        
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("*********");
+        System.out.println("addFriend");
+        System.out.println(renderer.render(diff));
+        assertNotNull(diff);
+        assertEquals(diff.getHolder(), originalObject);
     }
-
+    
     @Test
-    public void diffShouldContainChangeLogs() throws Exception {
-        DiffEngine diffEngine = new DiffEngineImpl();
-        DiffRenderer renderer = new DiffRendererImpl();
-        Person person = new Person();
-        person.setFirstName("Fred");
-        person.setSurname("Smith");
+    public void updatePersonFriendAndPet() throws Exception
+    {
+        Person originalObject = new Person();;
+        originalObject.setFirstName("Fred");
+        originalObject.setSurname("Smith");
+        
+        Person friend = new Person();
+        friend.setFirstName("Tom");
+        friend.setSurname("Brown");
+        originalObject.setFriend(friend);
 
-       TestClass test = new TestClass();
-       test.setName("hello");
-       test.setScore(5);
-       TestClass test1 = (TestClass)BeanUtils.cloneBean(test);
-       test1.setScore(10);
+        Pet pet = new Pet();
+        pet.setType("Dog");
+        pet.setName("Rover");
+        originalObject.setPet(pet);
+        
+        Person modifiedObject = new Person();;
+        modifiedObject.setFirstName("Fred");
+        modifiedObject.setSurname("Jones");
+        
+        friend = new Person();
+        friend.setFirstName("Jim");
+        friend.setSurname("Brown");
+        modifiedObject.setFriend(friend);
 
-        Diff<TestClass> diff = diffEngine.calculate(test, test1);
-        logger.log(Level.INFO, renderer.render(diff));
-
-        assertNotEquals(0L, diff.getChangeLogs().size());
-
+        pet = new Pet();
+        pet.setType("Dog");
+        pet.setName("Brown");
+        modifiedObject.setPet(pet);
+        
+        
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("\n\n************************");
+        System.out.println("updatePersonFriendAndPet");
+        System.out.println(renderer.render(diff));
+        assertNotNull(diff);
+        assertEquals(diff.getHolder(), originalObject);
     }
-
-
+    
     @Test
-    public void diffApplyShouldWorkOnCollections() throws Exception {
-        DiffEngine diffEngine = new DiffEngineImpl();
-        DiffRenderer renderer = new DiffRendererImpl();
-        Person person = new Person();
-        person.setFirstName("Fred");
-        person.setSurname("Smith");
-        Set<String> nickNames = new HashSet<>();
-        nickNames.add("Shane");
-        person.setNickNames(nickNames);
+    public void updatePersonFriend() throws Exception
+    {
+        Person originalObject = new Person();;
+        originalObject.setFirstName("Fred");
+        originalObject.setSurname("Smith");
+        
+        Person friend = new Person();
+        friend.setFirstName("Tom");
+        friend.setSurname("Brown");
+        originalObject.setFriend(friend);
 
-        Person clone = (Person) BeanUtils.cloneBean(person);
-        clone.setFirstName("Freddie");
+        Person modifiedObject = new Person();;
+        modifiedObject.setFirstName("Fred");
+        modifiedObject.setSurname("Smith");
+        
+        friend = new Person();
+        friend.setFirstName("Jim");
+        friend.setSurname("Brown");
+        modifiedObject.setFriend(friend);
 
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("\n\n************************");
+        System.out.println("updatePersonFriendAndPet");
+        System.out.println(renderer.render(diff));
+        assertNotNull(diff);
+        assertEquals(diff.getHolder(), originalObject);
+    }
+    
+    @Test
+    public void deleteFriend() throws Exception
+    {
+    	Person originalObject = new Person();;
+        originalObject.setFirstName("Fred");
+        originalObject.setSurname("Smith");
+        
+        Person friend = new Person();
+        friend.setFirstName("Tom");
+        friend.setSurname("Brown");
+        originalObject.setFriend(friend);
 
-        Set<String> names = new HashSet<>();
-        names.add("Fredzen");
-        names.add("MaFred");
-        names.add("Shane");
-        //this is cheating I know
-        clone.setNickNames(names);
+        Person modifiedObject = new Person();;
+        modifiedObject.setFirstName("John");
+        modifiedObject.setSurname("Smith");
+        
+        modifiedObject.setFriend(null);
 
-        Diff<Person> diff = diffEngine.calculate(person, clone);
-        logger.log(Level.INFO, renderer.render(diff));
-        Person applied = diffEngine.apply(person, diff);
-        assertEquals(applied.getFirstName(),clone.getFirstName());
-        assertEquals(applied.getNickNames(),clone.getNickNames());
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("deleteFriend");
+        System.out.println(renderer.render(diff));
+        assertNotNull(diff);
+        assertEquals(diff.getHolder(), originalObject);
+    }
+    
+    @Test
+    public void updatePersonNickNames() throws Exception
+    {
+    	Person originalObject = new Person();;
+        originalObject.setFirstName("Fred");
+        originalObject.setSurname("Smith");
+        
+        Set<String> nickNames = new HashSet<String>();
+        nickNames.add("scooter");
+        nickNames.add("biff");
+        
+        originalObject.setNickNames(nickNames);
+        
+        Person modifiedObject = new Person();;
+        modifiedObject.setFirstName("Fred");
+        modifiedObject.setSurname("Smith");
+        
+        nickNames = new HashSet<String>();
+        nickNames.add("biff");
+        nickNames.add("polly");
+        
+        modifiedObject.setNickNames(nickNames);
 
-        assertEquals(applied, clone);
+        
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("\n\n*********************");
+        System.out.println("updatePersonNickNames");
+        System.out.println(renderer.render(diff));
+        assertNotNull(diff);
+        assertEquals(diff.getHolder(), originalObject);
     }
 }

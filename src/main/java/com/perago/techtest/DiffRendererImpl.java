@@ -1,5 +1,7 @@
 package com.perago.techtest;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +25,8 @@ public class DiffRendererImpl implements DiffRenderer {
 		
 		int noOfChanges = changeLogs.size();
 		Diff.ChangeLog changeLog = null;
+		
+		Iterator<String> collectionIterator;
 		
 		for (int eachChangeIndex = 0; eachChangeIndex < noOfChanges; eachChangeIndex++) {
 			changeLog = changeLogs.get(eachChangeIndex);
@@ -48,7 +52,14 @@ public class DiffRendererImpl implements DiffRenderer {
 							builder.append(" from ");
 							if(changeLog.getOldValue() != null)
 							{
-								builder.append("\"").append(changeLog.getOldValue()).append("\"");
+								if(changeLog.getOldValue() instanceof Collection)
+								{
+									builder.append(getCollectionContent((Collection)changeLog.getOldValue()));
+								}
+								else
+								{
+									builder.append("\"").append(changeLog.getValue()).append("\"");
+								}
 							}
 							else
 							{
@@ -59,7 +70,14 @@ public class DiffRendererImpl implements DiffRenderer {
 							
 							if(changeLog.getValue() != null)
 							{
-								builder.append("\"").append(changeLog.getValue()).append("\"");
+								if(changeLog.getValue() instanceof Collection)
+								{
+									builder.append(getCollectionContent((Collection)changeLog.getValue()));
+								}
+								else
+								{
+									builder.append("\"").append(changeLog.getValue()).append("\"");
+								}
 							}
 							else
 							{
@@ -95,6 +113,20 @@ public class DiffRendererImpl implements DiffRenderer {
 		}
 
 		return builder.toString();
+	}
+
+	private Object getCollectionContent(Collection collectionObject) {
+		Iterator collectionIterator = collectionObject.iterator();
+		StringBuilder builder = new StringBuilder("");
+		builder.append("{");
+		while(collectionIterator.hasNext())
+		{
+			builder.append("\"").append(collectionIterator.next()).append("\"");
+			if(collectionIterator.hasNext()) builder.append(",");
+		}
+		builder.append("}");
+		
+		return builder;
 	}
 
 	private static String getDepthString(int depth) {
