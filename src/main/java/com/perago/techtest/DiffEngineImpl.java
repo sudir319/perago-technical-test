@@ -89,7 +89,12 @@ public class DiffEngineImpl implements DiffEngine {
 		}
 		
 		if (original == null) {
-			diff.addLog(new Diff.ChangeLog(Status.Create, modified.getClass().getName(), null, depth, true));
+
+			if(!ignoreUpdate)
+			{
+				diff.addLog(new Diff.ChangeLog(Status.Create, modified.getClass().getName(), null, depth, true));
+			}
+
 			depth++;
 			for (Field eachChild : children) {
 				if (Modifier.isStatic(eachChild.getModifiers())) {
@@ -159,8 +164,37 @@ public class DiffEngineImpl implements DiffEngine {
 						&& getPropertyValue(modified, child.getName()) != null) {
 					child.setAccessible(true);
 					Object modifiedInstance = child.get(modified);
-					diff.addLog(new Diff.ChangeLog(Status.Update, child.getName(), child.getType().getSimpleName(),
-							null, modifiedInstance, depth, false));
+					
+					if(!isStandardDataType(child.getType()))
+					{
+						diff.addLog(new Diff.ChangeLog(Status.Update, child.getName(), child.getType().getSimpleName(),
+								depth, false));
+						
+						T fieldInOriginal = (T) child.get(original);
+						T fieldInModified = (T) child.get(modified);
+						
+						if (fieldInModified == null && fieldInOriginal != null) {
+							diff.addLog(new Diff.ChangeLog(Status.Delete, child.getName(), child.getType().getSimpleName(),
+									depth, false));
+							continue;
+						}
+						else if(fieldInModified != null && fieldInOriginal == null)
+						{
+							diff.addLog(new Diff.ChangeLog(Status.Create, child.getName(), child.getType().getSimpleName(),
+									depth + 1, false));
+							
+							findDifferences(diff, fieldInOriginal, fieldInModified, depth + 1, true);
+							continue;
+						}
+						
+						findDifferences(diff, fieldInOriginal, fieldInModified, depth + 1, true);
+						
+					}
+					else
+					{
+						diff.addLog(new Diff.ChangeLog(Status.Update, child.getName(), child.getType().getSimpleName(),
+								null, modifiedInstance, depth, false));
+					}
 				}
 				if (getPropertyValue(original, child.getName()) != null
 						&& getPropertyValue(modified, child.getName()) != null) {

@@ -3,7 +3,6 @@ package com.perago.techtest.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,6 +20,7 @@ public class DiffEngineImplTest {
     DiffRendererImpl renderer = new DiffRendererImpl();
 
     @Test
+    //Case 1 from the Examples
     public void originalNullAndModifiedNotNull() throws Exception
     {
         Person originalObject = null;
@@ -39,6 +39,7 @@ public class DiffEngineImplTest {
     }
     
     @Test
+    //Case 2 from the Examples
     public void originalNotNullAndModifiedNull() throws Exception
     {
         Person originalObject = new Person();;
@@ -57,6 +58,7 @@ public class DiffEngineImplTest {
     }
 
     @Test
+    //Case 3 from the Examples
     public void modifiedSurname() throws Exception
     {
         Person originalObject = new Person();;
@@ -73,9 +75,12 @@ public class DiffEngineImplTest {
         System.out.println(renderer.render(diff));
         assertNotNull(diff);
         assertEquals(diff.getHolder(), originalObject);
+        //diffShouldContainChangeLogs
+        assertNotEquals(0L, diff.getChangeLogs().size());
     }
     
     @Test
+    //Case 4 from the Examples
     public void addFriend() throws Exception
     {
         Person originalObject = new Person();;
@@ -101,6 +106,7 @@ public class DiffEngineImplTest {
     }
 
     @Test
+    //Case 5 from the Examples
     public void updatePersonFriendAndPet() throws Exception
     {
         Person originalObject = new Person();;
@@ -141,6 +147,7 @@ public class DiffEngineImplTest {
     }
     
     @Test
+    //Case 6 from the Examples
     public void updatePersonFriend() throws Exception
     {
         Person originalObject = new Person();;
@@ -170,6 +177,7 @@ public class DiffEngineImplTest {
     }
     
     @Test
+    //Case 7 from the Examples
     public void deleteFriend() throws Exception
     {
     	Person originalObject = new Person();;
@@ -196,6 +204,7 @@ public class DiffEngineImplTest {
     }
     
     @Test
+    //Case 8 from the Examples
     public void updatePersonNickNames() throws Exception
     {
     	Person originalObject = new Person();;
@@ -228,13 +237,44 @@ public class DiffEngineImplTest {
     }
     
     @Test
+    public void diffMustReflectAllInformationThatWasCreatedUpdatedAndDeleted() throws Exception
+    {
+        Person originalObject = new Person();
+        originalObject.setFirstName("Fred");
+        originalObject.setFirstName("Smith");
+        
+        Person friend = new Person();
+        friend.setFirstName("Tom");
+        friend.setSurname("Brown");
+        originalObject.setFriend(friend);
+        
+        Person modifiedObject = new Person();
+        modifiedObject.setFirstName("Fred");
+        modifiedObject.setFirstName("Jones");
+        
+        modifiedObject.setFriend(null);
+        
+        Pet pet = new Pet();
+        pet.setType("Dog");
+        pet.setName("Rover");
+        
+        modifiedObject.setPet(pet);
+        
+        Diff<Person> diff = diffEngine.calculate(originalObject, modifiedObject);
+        System.out.println("\ndiffMustReflectAllInformationThatWasCreatedUpdatedAndDeleted");
+        System.out.println("***************************************************************");
+        System.out.println(renderer.render(diff));
+        assertNotNull(diff);
+        assertEquals(diff.getHolder(), originalObject);
+    }
+    
+    @Test
     public void diffEngineApplyShouldReturnModifiedWhenOriginalIsNullAndModifiedNonNull() throws Exception {
         Person modified = new Person();
         modified.setFirstName("Fred");
         modified.setSurname("Smith");
 
         Diff<Person> diff = diffEngine.calculate(null, modified);
-        System.out.println( renderer.render(diff));
         
         System.out.println("\ndiffEngineApplyShouldReturnModifiedWhenOriginalIsNullAndModifiedNonNull");
         System.out.println("*************************************************************************");
@@ -249,43 +289,6 @@ public class DiffEngineImplTest {
         assertNotNull(applied);
         assertEquals(applied.getSurname(), modified.getSurname());
 
-    }
-
-    @Test
-    public void diffEngineApplyShouldReturnNullWhenModifiedIsNull() throws Exception {
-        Person original = new Person();
-        original.setFirstName("Fred");
-        original.setSurname("Smith");
-
-        Diff<Person> diff = diffEngine.calculate(original, null);
-
-        System.out.println("\ndiffEngineApplyShouldReturnNullWhenModifiedIsNull");
-        System.out.println("**************************************************");
-        System.out.println( renderer.render(diff));
-        
-        Person applied = diffEngine.apply(original, diff);
-        
-        assertNotNull(original);
-        assertNull(applied);
-    }
-
-    @Test
-    public void diffShouldContainChangeLogs() throws Exception {
-        Person person1 = new Person();
-        person1.setFirstName("Fred");
-        person1.setSurname("Smith");
-        
-        Person person2 = new Person();
-        person2.setFirstName("Fred");
-        person2.setSurname("Jones");
-        
-        Diff<Person> diff = diffEngine.calculate(person1, person2);
-        
-        System.out.println("\ndiffShouldContainChangeLogs");
-        System.out.println("****************************");
-        System.out.println( renderer.render(diff));
-
-        assertNotEquals(0L, diff.getChangeLogs().size());
     }
 
     @Test

@@ -10,6 +10,7 @@ public class DiffRendererImpl implements DiffRenderer {
 	private static String depthString;
 	private static String currentDepthString;
 	
+	public void resetVariables()
 	{
 		depthString = "";
 		currentDepthString = "";
@@ -17,20 +18,20 @@ public class DiffRendererImpl implements DiffRenderer {
 
 	public String render(Diff<?> diff) throws DiffException {
 
-		Class originalClass;
-		originalClass = (diff.getHolder() ==  null) ? null : diff.getHolder().getClass();
+		resetVariables();
+
+		Class originalClass = (diff.getHolder() ==  null) ? null : diff.getHolder().getClass();
 		List<Diff.ChangeLog> changeLogs = diff.getChangeLogs();
 		StringBuilder builder = new StringBuilder();
 		
 		int noOfChanges = changeLogs.size();
 		Diff.ChangeLog changeLog = null;
 		
-		Iterator<String> collectionIterator;
-		
 		for (int eachChangeIndex = 0; eachChangeIndex < noOfChanges; eachChangeIndex++) {
 			changeLog = changeLogs.get(eachChangeIndex);
 			
 			builder.append(getDepthString(changeLog.getDepth()));
+			
 			indent(builder, changeLog.getDepth());
 			
 			if (originalClass == null) {
@@ -90,25 +91,27 @@ public class DiffRendererImpl implements DiffRenderer {
 						builder.append(changeLog.getStatus()).append(":").append((changeLog.getFieldName()));
 						builder.append(lineSeparator);
 					} else {
-						builder.append(changeLog.getStatus()).append(":").append((changeLog.getFieldName()))
-								.append(" as ");
-						if(changeLog.getValue() != null)
-						{
-							builder.append("\"").append(changeLog.getValue()).append("\"");
+						builder.append(changeLog.getStatus()).append(":").append((changeLog.getFieldName()));
+						
+						if(changeLog.getStatus().equals(Status.Update) || changeLog.getValue() != null) {
+							builder.append(" as ");
+							
+							if(changeLog.getValue() != null)
+							{
+								builder.append("\"").append(changeLog.getValue()).append("\"");
+							}
+							else
+							{
+								builder.append(changeLog.getValue());
+							}
 						}
-						else
-						{
-							builder.append(changeLog.getValue());
-						}
+						
 						builder.append(lineSeparator);
 					}
 
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			}
-			if(eachChangeIndex < noOfChanges - 1) {
-				
 			}
 		}
 
@@ -177,7 +180,7 @@ public class DiffRendererImpl implements DiffRenderer {
 		}
 		catch(Exception e)
 		{
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		
 		return depthString;
